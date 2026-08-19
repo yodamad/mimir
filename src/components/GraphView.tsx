@@ -17,7 +17,6 @@ function buildStylesheet(theme: ThemeMode): StylesheetJsonBlock[] {
   const inkColor = theme === 'dark' ? '#f2eefb' : '#17132a'
   const edgeTextColor = theme === 'dark' ? '#e5e1f5' : '#332c4d'
   const minorGodFill = theme === 'dark' ? '#4d3d13' : '#e3cf85'
-  const highlightColor = theme === 'dark' ? '#e6b84a' : '#a3730d'
 
   return [
     {
@@ -35,7 +34,7 @@ function buildStylesheet(theme: ThemeMode): StylesheetJsonBlock[] {
         'text-outline-width': 2.5,
         'text-outline-color': canvasBg,
         'border-width': 2,
-        'transition-property': 'opacity, border-width, border-color',
+        'transition-property': 'opacity, border-width, border-color, overlay-opacity',
         'transition-duration': 150,
       },
     },
@@ -69,8 +68,16 @@ function buildStylesheet(theme: ThemeMode): StylesheetJsonBlock[] {
     },
     { selector: '.category-hidden, .group-hidden', style: { display: 'none' } },
     { selector: '.context-dimmed, .search-dimmed', style: { opacity: 0.08, 'text-opacity': 0 } },
-    { selector: 'node.focus-highlight', style: { 'border-width': 4, 'border-color': highlightColor, opacity: 1 } },
-    { selector: 'node.search-match', style: { 'border-width': 4, 'border-color': highlightColor, opacity: 1 } },
+    {
+      selector: 'node.focus-highlight, node.search-match',
+      style: {
+        'border-width': 4,
+        opacity: 1,
+        'overlay-color': inkColor,
+        'overlay-opacity': theme === 'dark' ? 0.32 : 0.16,
+        'overlay-padding': 6,
+      },
+    },
     { selector: 'edge.focus-edge', style: { 'text-opacity': 1, width: 2.2, opacity: 1 } },
   ]
 }
