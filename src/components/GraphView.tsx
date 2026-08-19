@@ -5,69 +5,75 @@ import CytoscapeComponent from 'react-cytoscapejs'
 import type { Core, StylesheetJsonBlock } from 'cytoscape'
 import { buildGraphElements } from '../utils/graphElements'
 import { RELATIONSHIP_TYPES } from '../types/relationshipMeta'
+import { getGroupColors, getTypeStyles, type ThemeMode } from '../theme/entityColors'
 import type { Entity, Relationship, RelationshipGroup } from '../types/entity'
 
 cytoscape.use(fcose)
 
-const GROUP_COLORS: Record<RelationshipGroup, string> = {
-  family: '#9089b3',
-  conflict: '#c15b57',
-  place: '#5fae82',
-}
+function buildStylesheet(theme: ThemeMode): StylesheetJsonBlock[] {
+  const types = getTypeStyles(theme)
+  const groups = getGroupColors(theme)
+  const canvasBg = theme === 'dark' ? '#0c0a16' : '#f6f4fb'
+  const inkColor = theme === 'dark' ? '#f2eefb' : '#17132a'
+  const edgeTextColor = theme === 'dark' ? '#e5e1f5' : '#332c4d'
+  const minorGodFill = theme === 'dark' ? '#4d3d13' : '#e3cf85'
+  const highlightColor = theme === 'dark' ? '#e6b84a' : '#a3730d'
 
-const stylesheet: StylesheetJsonBlock[] = [
-  {
-    selector: 'node',
-    style: {
-      width: (ele: cytoscape.NodeSingular) => 22 + Math.min(ele.degree(false), 16) * 3,
-      height: (ele: cytoscape.NodeSingular) => 22 + Math.min(ele.degree(false), 16) * 3,
-      label: 'data(name)',
-      color: '#f0ecff',
-      'font-size': 9,
-      'font-family': '"Cormorant Garamond", serif',
-      'text-valign': 'bottom',
-      'text-margin-y': 5,
-      'text-outline-width': 2,
-      'text-outline-color': '#0f0c1d',
-      'border-width': 2,
-      'transition-property': 'opacity, border-width, border-color',
-      'transition-duration': 150,
+  return [
+    {
+      selector: 'node',
+      style: {
+        width: (ele: cytoscape.NodeSingular) => 22 + Math.min(ele.degree(false), 16) * 3,
+        height: (ele: cytoscape.NodeSingular) => 22 + Math.min(ele.degree(false), 16) * 3,
+        label: 'data(name)',
+        color: inkColor,
+        'font-size': 9,
+        'font-family': 'Fraunces, Georgia, serif',
+        'font-weight': 500,
+        'text-valign': 'bottom',
+        'text-margin-y': 6,
+        'text-outline-width': 2.5,
+        'text-outline-color': canvasBg,
+        'border-width': 2,
+        'transition-property': 'opacity, border-width, border-color',
+        'transition-duration': 150,
+      },
     },
-  },
-  { selector: 'node[type = "primordial"]', style: { shape: 'diamond', 'background-color': '#4a4363', 'border-color': '#8079a3' } },
-  { selector: 'node[type = "titan"]', style: { shape: 'hexagon', 'background-color': '#8a6d3b', 'border-color': '#c9a227' } },
-  { selector: 'node[type = "god"]', style: { shape: 'ellipse', 'background-color': '#e3b341', 'border-color': '#fff2c2' } },
-  { selector: 'node[category = "Minor God"]', style: { 'background-color': '#a6873f' } },
-  { selector: 'node[type = "hero"]', style: { shape: 'triangle', 'background-color': '#7c9cff', 'border-color': '#c2d1ff' } },
-  { selector: 'node[type = "creature"]', style: { shape: 'star', 'background-color': '#b3423f', 'border-color': '#e2726f' } },
-  { selector: 'node[type = "place"]', style: { shape: 'round-rectangle', 'background-color': '#4a9d6f', 'border-color': '#8fd6ab' } },
-  {
-    selector: 'edge',
-    style: {
-      width: 1.4,
-      'curve-style': 'bezier',
-      opacity: 0.55,
-      label: 'data(label)',
-      'font-size': 9,
-      'font-family': '"Cormorant Garamond", serif',
-      'text-opacity': 0,
-      color: '#e5e1f5',
-      'text-background-color': '#0f0c1d',
-      'text-background-opacity': 0.85,
-      'text-background-padding': '2px',
-      'line-color': (ele: cytoscape.EdgeSingular) => GROUP_COLORS[ele.data('group') as RelationshipGroup],
-      'target-arrow-color': (ele: cytoscape.EdgeSingular) => GROUP_COLORS[ele.data('group') as RelationshipGroup],
-      'target-arrow-shape': (ele: cytoscape.EdgeSingular) =>
-        RELATIONSHIP_TYPES[ele.data('relType') as keyof typeof RELATIONSHIP_TYPES].bidirectional ? 'none' : 'triangle',
-      'arrow-scale': 0.8,
+    { selector: 'node[type = "primordial"]', style: { shape: 'diamond', 'background-color': types.primordial.fill, 'border-color': types.primordial.line } },
+    { selector: 'node[type = "titan"]', style: { shape: 'hexagon', 'background-color': types.titan.fill, 'border-color': types.titan.line } },
+    { selector: 'node[type = "god"]', style: { shape: 'ellipse', 'background-color': types.god.fill, 'border-color': types.god.line } },
+    { selector: 'node[category = "Minor God"]', style: { 'background-color': minorGodFill } },
+    { selector: 'node[type = "hero"]', style: { shape: 'triangle', 'background-color': types.hero.fill, 'border-color': types.hero.line } },
+    { selector: 'node[type = "creature"]', style: { shape: 'star', 'background-color': types.creature.fill, 'border-color': types.creature.line } },
+    { selector: 'node[type = "place"]', style: { shape: 'round-rectangle', 'background-color': types.place.fill, 'border-color': types.place.line } },
+    {
+      selector: 'edge',
+      style: {
+        width: 1.4,
+        'curve-style': 'bezier',
+        opacity: theme === 'dark' ? 0.55 : 0.65,
+        label: 'data(label)',
+        'font-size': 9,
+        'font-family': 'Inter, system-ui, sans-serif',
+        'text-opacity': 0,
+        color: edgeTextColor,
+        'text-background-color': canvasBg,
+        'text-background-opacity': 0.85,
+        'text-background-padding': '2px',
+        'line-color': (ele: cytoscape.EdgeSingular) => groups[ele.data('group') as RelationshipGroup],
+        'target-arrow-color': (ele: cytoscape.EdgeSingular) => groups[ele.data('group') as RelationshipGroup],
+        'target-arrow-shape': (ele: cytoscape.EdgeSingular) =>
+          RELATIONSHIP_TYPES[ele.data('relType') as keyof typeof RELATIONSHIP_TYPES].bidirectional ? 'none' : 'triangle',
+        'arrow-scale': 0.8,
+      },
     },
-  },
-  { selector: '.category-hidden, .group-hidden', style: { display: 'none' } },
-  { selector: '.context-dimmed, .search-dimmed', style: { opacity: 0.08, 'text-opacity': 0 } },
-  { selector: 'node.focus-highlight', style: { 'border-width': 4, 'border-color': '#e3b341', opacity: 1 } },
-  { selector: 'node.search-match', style: { 'border-width': 4, 'border-color': '#e3b341', opacity: 1 } },
-  { selector: 'edge.focus-edge', style: { 'text-opacity': 1, width: 2.2, opacity: 1 } },
-]
+    { selector: '.category-hidden, .group-hidden', style: { display: 'none' } },
+    { selector: '.context-dimmed, .search-dimmed', style: { opacity: 0.08, 'text-opacity': 0 } },
+    { selector: 'node.focus-highlight', style: { 'border-width': 4, 'border-color': highlightColor, opacity: 1 } },
+    { selector: 'node.search-match', style: { 'border-width': 4, 'border-color': highlightColor, opacity: 1 } },
+    { selector: 'edge.focus-edge', style: { 'text-opacity': 1, width: 2.2, opacity: 1 } },
+  ]
+}
 
 interface GraphViewProps {
   entities: Entity[]
@@ -77,6 +83,7 @@ interface GraphViewProps {
   activeGroups: Set<RelationshipGroup>
   selectedEntityId: string | null
   onNodeClick: (id: string) => void
+  theme: ThemeMode
 }
 
 export function GraphView({
@@ -87,8 +94,10 @@ export function GraphView({
   activeGroups,
   selectedEntityId,
   onNodeClick,
+  theme,
 }: GraphViewProps) {
   const elements = useMemo(() => buildGraphElements(entities, relationships), [entities, relationships])
+  const stylesheet = useMemo(() => buildStylesheet(theme), [theme])
   const [cy, setCy] = useState<Core | null>(null)
   const layoutRanRef = useRef(false)
   const onNodeClickRef = useRef(onNodeClick)
@@ -105,6 +114,12 @@ export function GraphView({
       if (evt.target === cy) onNodeClickRef.current('')
     })
   }, [cy])
+
+  // Keep Cytoscape's canvas-rendered styles in sync with the current theme.
+  useEffect(() => {
+    if (!cy) return
+    cy.style(stylesheet).update()
+  }, [cy, stylesheet])
 
   // Category + relationship-group filtering: class toggles only, no layout recompute.
   useEffect(() => {
@@ -155,12 +170,24 @@ export function GraphView({
     node.addClass('focus-highlight')
     neighborhood.edges().addClass('focus-edge')
 
-    node.animate({ position: node.position() }, { duration: 0 })
-    cy.animate({ center: { eles: node }, zoom: Math.max(cy.zoom(), 1) }, { duration: 400 })
+    // The entity card docks over the right edge of the canvas, so center the
+    // node in the space that's actually still visible rather than the full width.
+    const container = cy.container()
+    const width = container?.clientWidth ?? 0
+    const height = container?.clientHeight ?? 0
+    const reservedRight = Math.min(420, width * 0.45)
+    const targetX = (width - reservedRight) / 2
+    const targetY = height / 2
+
+    const zoom = Math.max(cy.zoom(), 1.6)
+    const pos = node.position()
+    const pan = { x: targetX - pos.x * zoom, y: targetY - pos.y * zoom }
+
+    cy.animate({ zoom, pan }, { duration: 450, easing: 'ease-out' })
   }, [cy, selectedEntityId])
 
   return (
-    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#1b1530_0%,_#0f0c1d_70%)]">
+    <div className="graph-canvas absolute inset-0">
       <CytoscapeComponent
         elements={elements}
         stylesheet={stylesheet}

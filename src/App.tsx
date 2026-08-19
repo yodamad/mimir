@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react'
 import { TopBar } from './components/TopBar'
 import { GraphView } from './components/GraphView'
 import { EntityCard } from './components/EntityCard'
+import { Legend } from './components/Legend'
 import { useMythologyData } from './hooks/useMythologyData'
+import { useTheme } from './hooks/useTheme'
 import { resolveRelationshipsForEntity } from './utils/relationshipLabels'
 import { MYTHOLOGIES } from './data/mythologies'
 import { RELATIONSHIP_GROUPS } from './types/relationshipMeta'
@@ -14,6 +16,7 @@ function App() {
   const activeMythologyId = 'greek'
   const { entities, relationships, entityById } = useMythologyData(activeMythologyId)
   const mythologyName = MYTHOLOGIES.find((m) => m.id === activeMythologyId)?.name ?? activeMythologyId
+  const { theme, toggleTheme } = useTheme()
 
   const categories = useMemo(() => {
     const present = new Set(entities.map((e) => e.category))
@@ -54,7 +57,7 @@ function App() {
   const handleNodeClick = (id: string) => setSelectedEntityId(id || null)
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#0f0c1d]">
+    <div className="relative h-screen w-screen overflow-hidden bg-canvas text-ink">
       <GraphView
         entities={entities}
         relationships={relationships}
@@ -63,6 +66,7 @@ function App() {
         activeGroups={activeGroups}
         selectedEntityId={selectedEntityId}
         onNodeClick={handleNodeClick}
+        theme={theme}
       />
       <TopBar
         mythologyName={mythologyName}
@@ -73,12 +77,16 @@ function App() {
         onToggleCategory={toggleCategory}
         activeGroups={activeGroups}
         onToggleGroup={toggleGroup}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
+      <Legend theme={theme} />
       <EntityCard
         entity={selectedEntity}
         relationships={selectedRelationships}
         onSelectRelated={setSelectedEntityId}
         onClose={() => setSelectedEntityId(null)}
+        theme={theme}
       />
     </div>
   )

@@ -1,85 +1,81 @@
 import { X } from 'lucide-react'
-import type { Entity, EntityType } from '../types/entity'
+import type { Entity } from '../types/entity'
 import type { ResolvedRelationship } from '../utils/relationshipLabels'
-
-const TYPE_STYLES: Record<EntityType, { color: string; label: string }> = {
-  primordial: { color: '#8079a3', label: 'Primordial' },
-  titan: { color: '#c9a227', label: 'Titan' },
-  god: { color: '#e3b341', label: 'God' },
-  hero: { color: '#7c9cff', label: 'Hero' },
-  creature: { color: '#e2726f', label: 'Creature' },
-  place: { color: '#8fd6ab', label: 'Place' },
-}
+import { getTypeStyle, type ThemeMode } from '../theme/entityColors'
 
 interface EntityCardProps {
   entity: Entity | null
   relationships: ResolvedRelationship[]
   onSelectRelated: (id: string) => void
   onClose: () => void
+  theme: ThemeMode
 }
 
-export function EntityCard({ entity, relationships, onSelectRelated, onClose }: EntityCardProps) {
-  const typeStyle = entity ? TYPE_STYLES[entity.type] : null
+export function EntityCard({ entity, relationships, onSelectRelated, onClose, theme }: EntityCardProps) {
+  const typeStyle = entity ? getTypeStyle(theme, entity.type) : null
 
   return (
     <aside
-      className={`absolute top-0 right-0 z-30 h-full w-full max-w-sm overflow-y-auto border-l border-[#3a3358] bg-[#150f27]/97 shadow-2xl transition-transform duration-300 ease-out ${
-        entity ? 'translate-x-0' : 'translate-x-full'
+      className={`absolute top-5 right-5 bottom-5 z-30 w-full max-w-sm overflow-y-auto rounded-2xl border border-hairline bg-panel/95 shadow-2xl backdrop-blur-xl transition-all duration-300 ease-out ${
+        entity ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-6 opacity-0'
       }`}
     >
       {entity && typeStyle && (
-        <div className="flex flex-col gap-5 p-6 pt-16">
-          <button
-            onClick={onClose}
-            className="absolute top-5 right-5 rounded-full p-1.5 text-[#8b85a8] transition-colors hover:bg-[#2a2347] hover:text-[#f0ecff]"
-            aria-label="Close"
-          >
-            <X className="h-5 w-5" />
-          </button>
-
-          <div
-            className="flex h-20 w-20 items-center justify-center rounded-full border-2 font-[Cinzel] text-2xl"
-            style={{ borderColor: typeStyle.color, color: typeStyle.color, backgroundColor: `${typeStyle.color}1a` }}
-          >
-            {entity.name.charAt(0)}
+        <div className="flex flex-col gap-5 p-6">
+          <div className="flex items-start justify-between">
+            <div
+              className="flex h-16 w-16 items-center justify-center rounded-full border-2 font-display text-xl font-semibold"
+              style={{ borderColor: typeStyle.line, color: typeStyle.text, backgroundColor: typeStyle.fill }}
+            >
+              {entity.name.charAt(0)}
+            </div>
+            <button
+              onClick={onClose}
+              className="rounded-full p-1.5 text-muted transition-colors hover:bg-panel-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
 
           <div>
             <span
-              className="inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest"
-              style={{ color: typeStyle.color, backgroundColor: `${typeStyle.color}22` }}
+              className="inline-block rounded-full px-2.5 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-widest"
+              style={{ color: typeStyle.text, backgroundColor: typeStyle.fill }}
             >
               {entity.category}
             </span>
-            <h2 className="mt-2 font-[Cinzel] text-2xl text-[#f0ecff]">{entity.name}</h2>
-            {entity.title && <p className="font-[Cormorant_Garamond] text-base italic text-[#a9a2cc]">{entity.title}</p>}
+            <h2 className="mt-2 font-display text-2xl font-semibold text-ink">{entity.name}</h2>
+            {entity.title && <p className="font-display text-base italic text-muted">{entity.title}</p>}
             {entity.aliases && entity.aliases.length > 0 && (
-              <p className="mt-1 text-xs text-[#6b6489]">Also known as: {entity.aliases.join(', ')}</p>
+              <p className="mt-1 font-sans text-xs text-muted">Also known as {entity.aliases.join(', ')}</p>
             )}
           </div>
 
           {entity.domain && entity.domain.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {entity.domain.map((d) => (
-                <span key={d} className="rounded-full border border-[#3a3358] px-2.5 py-0.5 text-xs text-[#c9c3e6]">
+                <span key={d} className="rounded-full border border-hairline px-2.5 py-0.5 font-sans text-xs text-ink">
                   {d}
                 </span>
               ))}
             </div>
           )}
 
-          <p className="font-[Cormorant_Garamond] text-[15px] leading-relaxed text-[#dcd8f0]">{entity.description}</p>
+          <p className="font-display text-[15px] leading-relaxed text-ink/90">{entity.description}</p>
 
           {entity.symbols && entity.symbols.length > 0 && (
             <div>
-              <h3 className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-[#6b6489]">Symbols</h3>
-              <p className="text-sm text-[#c9c3e6]">{entity.symbols.join(', ')}</p>
+              <h3 className="mb-1.5 font-sans text-[11px] font-semibold uppercase tracking-widest text-muted">
+                Symbols
+              </h3>
+              <p className="font-sans text-sm text-ink/80">{entity.symbols.join(', ')}</p>
             </div>
           )}
 
           {relationships.length > 0 && (
             <div>
-              <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-[#6b6489]">
+              <h3 className="mb-2 font-sans text-[11px] font-semibold uppercase tracking-widest text-muted">
                 Relationships ({relationships.length})
               </h3>
               <ul className="flex flex-col gap-1">
@@ -87,10 +83,10 @@ export function EntityCard({ entity, relationships, onSelectRelated, onClose }: 
                   <li key={`${rel.relatedEntity.id}-${i}`}>
                     <button
                       onClick={() => onSelectRelated(rel.relatedEntity.id)}
-                      className="flex w-full items-center justify-between rounded-lg border border-transparent px-2.5 py-2 text-left transition-colors hover:border-[#3a3358] hover:bg-[#1f1938]"
+                      className="flex w-full items-center justify-between rounded-lg border border-transparent px-2.5 py-2 text-left transition-colors hover:border-hairline hover:bg-panel-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
                     >
-                      <span className="text-sm text-[#f0ecff]">{rel.relatedEntity.name}</span>
-                      <span className="text-xs text-[#8b85a8]">{rel.label}</span>
+                      <span className="font-sans text-sm text-ink">{rel.relatedEntity.name}</span>
+                      <span className="font-sans text-xs text-muted">{rel.label}</span>
                     </button>
                   </li>
                 ))}

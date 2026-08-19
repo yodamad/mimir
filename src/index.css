@@ -1,5 +1,70 @@
 @import 'tailwindcss';
 
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-hairline: var(--hairline);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+
+  --font-display: 'Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* Light theme (default) */
+:root {
+  color-scheme: light;
+  --canvas: #f6f4fb;
+  --panel: #ffffff;
+  --panel-2: #efebf8;
+  --hairline: #ddd6ee;
+  --ink: #17132a;
+  --muted: #6b6489;
+  --accent: #a3730d;
+  --accent-ink: #7a5608;
+  --accent-soft: rgba(163, 115, 13, 0.12);
+  --canvas-glow: radial-gradient(ellipse at 50% 40%, #efeaf9 0%, #f6f4fb 65%);
+  --dot-grid: radial-gradient(circle, rgba(107, 100, 137, 0.18) 1px, transparent 1px);
+}
+
+/* System preference, unless the user has explicitly chosen light */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --canvas: #0c0a16;
+    --panel: #14101f;
+    --panel-2: #1c1730;
+    --hairline: #2e2847;
+    --ink: #f2eefb;
+    --muted: #948db3;
+    --accent: #e6b84a;
+    --accent-ink: #f4cf74;
+    --accent-soft: rgba(230, 184, 74, 0.14);
+    --canvas-glow: radial-gradient(ellipse at 50% 40%, #1b1530 0%, #0c0a16 65%);
+    --dot-grid: radial-gradient(circle, rgba(148, 141, 179, 0.16) 1px, transparent 1px);
+  }
+}
+
+/* Explicit override always wins */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --canvas: #0c0a16;
+  --panel: #14101f;
+  --panel-2: #1c1730;
+  --hairline: #2e2847;
+  --ink: #f2eefb;
+  --muted: #948db3;
+  --accent: #e6b84a;
+  --accent-ink: #f4cf74;
+  --accent-soft: rgba(230, 184, 74, 0.14);
+  --canvas-glow: radial-gradient(ellipse at 50% 40%, #1b1530 0%, #0c0a16 65%);
+  --dot-grid: radial-gradient(circle, rgba(148, 141, 179, 0.16) 1px, transparent 1px);
+}
+
 html,
 body,
 #root {
@@ -8,7 +73,35 @@ body,
 }
 
 body {
-  font-family: 'Cormorant Garamond', serif;
-  background: #0f0c1d;
-  color-scheme: dark;
+  font-family: var(--font-sans);
+  background: var(--canvas);
+  color: var(--ink);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.graph-canvas {
+  background-color: var(--canvas);
+  background-image: var(--dot-grid), var(--canvas-glow);
+  background-size: 22px 22px, 100% 100%;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--hairline);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
