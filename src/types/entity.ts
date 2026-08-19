@@ -10,6 +10,7 @@ export interface Entity {
   id: string
   mythology: string
   name: string
+  wikipedia?: string
   type: EntityType
   category: string
   title?: string
