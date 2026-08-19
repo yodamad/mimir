@@ -7,22 +7,30 @@ import { SeoContent } from './components/SeoContent'
 import { useMythologyData } from './hooks/useMythologyData'
 import { useTheme } from './hooks/useTheme'
 import { resolveRelationshipsForEntity } from './utils/relationshipLabels'
-import { MYTHOLOGIES } from './data/mythologies'
+import { MYTHOLOGIES, getMythologyData } from './data/mythologies'
 import { RELATIONSHIP_GROUPS } from './types/relationshipMeta'
-import type { RelationshipGroup } from './types/entity'
-
-const CATEGORY_ORDER = ['Primordial', 'Titan', 'Olympian', 'Minor God', 'Hero', 'Creature', 'Place']
+import { TYPE_ORDER } from './theme/entityColors'
+import type { Entity, EntityType, RelationshipGroup } from './types/entity'
 
 function App() {
-  const activeMythologyId = 'greek'
+  const [activeMythologyId, setActiveMythologyId] = useState(MYTHOLOGIES[0]?.id ?? 'greek')
   const { entities, relationships, entityById } = useMythologyData(activeMythologyId)
   const mythologyName = MYTHOLOGIES.find((m) => m.id === activeMythologyId)?.name ?? activeMythologyId
   const { theme, toggleTheme } = useTheme()
 
-  const categories = useMemo(() => {
-    const present = new Set(entities.map((e) => e.category))
-    return CATEGORY_ORDER.filter((c) => present.has(c))
+  const categoryToType = useMemo(() => {
+    const map: Record<string, EntityType> = {}
+    for (const entity of entities) map[entity.category] ??= entity.type
+    return map
   }, [entities])
+
+  const categories = useMemo(() => {
+    const present = Array.from(new Set(entities.map((e) => e.category)))
+    return present.sort((a, b) => {
+      const typeDiff = TYPE_ORDER.indexOf(categoryToType[a]) - TYPE_ORDER.indexOf(categoryToType[b])
+      return typeDiff !== 0 ? typeDiff : a.localeCompare(b)
+    })
+  }, [entities, categoryToType])
 
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -30,6 +38,14 @@ function App() {
   const [activeGroups, setActiveGroups] = useState<Set<RelationshipGroup>>(
     () => new Set(RELATIONSHIP_GROUPS.map((g) => g.id)),
   )
+
+  const handleChangeMythology = (id: string) => {
+    const { entities: nextEntities } = getMythologyData(id) as { entities: Entity[] }
+    setActiveMythologyId(id)
+    setSelectedEntityId(null)
+    setSearchQuery('')
+    setActiveCategories(new Set(nextEntities.map((e) => e.category)))
+  }
 
   const toggleCategory = (category: string) => {
     setActiveCategories((prev) => {
@@ -71,10 +87,13 @@ function App() {
         theme={theme}
       />
       <TopBar
-        mythologyName={mythologyName}
+        mythologies={MYTHOLOGIES}
+        activeMythologyId={activeMythologyId}
+        onChangeMythology={handleChangeMythology}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         categories={categories}
+        categoryToType={categoryToType}
         activeCategories={activeCategories}
         onToggleCategory={toggleCategory}
         activeGroups={activeGroups}

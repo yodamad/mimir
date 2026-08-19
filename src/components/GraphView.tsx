@@ -16,7 +16,6 @@ function buildStylesheet(theme: ThemeMode): StylesheetJsonBlock[] {
   const canvasBg = theme === 'dark' ? '#0c0a16' : '#f6f4fb'
   const inkColor = theme === 'dark' ? '#f2eefb' : '#17132a'
   const edgeTextColor = theme === 'dark' ? '#e5e1f5' : '#332c4d'
-  const minorGodFill = theme === 'dark' ? '#4d3d13' : '#e3cf85'
 
   return [
     {
@@ -41,7 +40,6 @@ function buildStylesheet(theme: ThemeMode): StylesheetJsonBlock[] {
     { selector: 'node[type = "primordial"]', style: { shape: 'diamond', 'background-color': types.primordial.fill, 'border-color': types.primordial.line } },
     { selector: 'node[type = "titan"]', style: { shape: 'hexagon', 'background-color': types.titan.fill, 'border-color': types.titan.line } },
     { selector: 'node[type = "god"]', style: { shape: 'ellipse', 'background-color': types.god.fill, 'border-color': types.god.line } },
-    { selector: 'node[category = "Minor God"]', style: { 'background-color': minorGodFill } },
     { selector: 'node[type = "hero"]', style: { shape: 'triangle', 'background-color': types.hero.fill, 'border-color': types.hero.line } },
     { selector: 'node[type = "creature"]', style: { shape: 'star', 'background-color': types.creature.fill, 'border-color': types.creature.line } },
     { selector: 'node[type = "place"]', style: { shape: 'round-rectangle', 'background-color': types.place.fill, 'border-color': types.place.line } },

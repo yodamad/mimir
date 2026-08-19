@@ -1,10 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { getGroupColors, getTypeStyles, type NodeShape, type ThemeMode } from '../theme/entityColors'
+import { getGroupColors, getTypeStyles, TYPE_ORDER, type NodeShape, type ThemeMode } from '../theme/entityColors'
 import { RELATIONSHIP_GROUPS } from '../types/relationshipMeta'
-import type { EntityType } from '../types/entity'
-
-const TYPE_ORDER: EntityType[] = ['primordial', 'titan', 'god', 'hero', 'creature', 'place']
 
 function ShapeGlyph({ shape, fill, line }: { shape: NodeShape; fill: string; line: string }) {
   const common = { stroke: line, strokeWidth: 1.5, fill }

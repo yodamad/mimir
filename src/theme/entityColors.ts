@@ -15,6 +15,8 @@ interface TypeStyle {
   text: string
 }
 
+export const TYPE_ORDER: EntityType[] = ['primordial', 'titan', 'god', 'hero', 'creature', 'place']
+
 const TYPE_COLORS: Record<ThemeMode, Record<EntityType, TypeStyle>> = {
   dark: {
     primordial: { shape: 'diamond', label: 'Primordial', fill: '#3c3557', line: '#9089c2', text: '#c7c2e8' },
