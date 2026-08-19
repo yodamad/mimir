@@ -1,0 +1,40 @@
+export interface MythologyMeta {
+  id: string
+  name: string
+  entitiesPath: string
+  relationshipsPath: string
+}
+
+const entityModules = import.meta.glob('./*/entities.json', { eager: true }) as Record<
+  string,
+  { default: unknown }
+>
+const relationshipModules = import.meta.glob('./*/relationships.json', { eager: true }) as Record<
+  string,
+  { default: unknown }
+>
+
+const MYTHOLOGY_NAMES: Record<string, string> = {
+  greek: 'Greek',
+}
+
+export const MYTHOLOGIES: MythologyMeta[] = Object.keys(entityModules)
+  .map((path) => {
+    const id = path.split('/')[1]
+    return {
+      id,
+      name: MYTHOLOGY_NAMES[id] ?? id,
+      entitiesPath: path,
+      relationshipsPath: path.replace('entities.json', 'relationships.json'),
+    }
+  })
+  .filter((meta) => relationshipModules[meta.relationshipsPath] !== undefined)
+
+export function getMythologyData(mythologyId: string) {
+  const meta = MYTHOLOGIES.find((m) => m.id === mythologyId)
+  if (!meta) throw new Error(`Unknown mythology: ${mythologyId}`)
+  return {
+    entities: entityModules[meta.entitiesPath].default,
+    relationships: relationshipModules[meta.relationshipsPath].default,
+  }
+}
