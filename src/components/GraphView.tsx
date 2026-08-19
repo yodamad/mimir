@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import cytoscape from 'cytoscape'
 import fcose from 'cytoscape-fcose'
 import CytoscapeComponent from 'react-cytoscapejs'
-import type { Core, StylesheetJsonBlock } from 'cytoscape'
+import type { Core, NodeSingular, StylesheetJsonBlock } from 'cytoscape'
 import { buildGraphElements } from '../utils/graphElements'
 import { RELATIONSHIP_TYPES } from '../types/relationshipMeta'
 import { getGroupColors, getTypeStyles, type ThemeMode } from '../theme/entityColors'
@@ -157,7 +157,9 @@ export function GraphView({
     })
   }, [cy, searchQuery])
 
-  // Focus + context: dim everything outside the selected node's neighborhood.
+  // Focus + context: dim everything outside the selected node's neighborhood, and
+  // arrange that neighborhood in a clean ring around it so edges fan out from the
+  // node instead of crossing through whatever the force layout happened to produce.
   useEffect(() => {
     if (!cy) return
     cy.elements().removeClass('context-dimmed').removeClass('focus-highlight').removeClass('focus-edge')
@@ -170,8 +172,27 @@ export function GraphView({
     node.addClass('focus-highlight')
     neighborhood.edges().addClass('focus-edge')
 
-    // The entity card docks over the right edge of the canvas, so center the
-    // node in the space that's actually still visible rather than the full width.
+    const center = node.position()
+    const neighborCount = neighborhood.nodes().length - 1
+    const radius = Math.min(380, Math.max(140, 100 + neighborCount * 11))
+
+    neighborhood
+      .layout({
+        name: 'concentric',
+        animate: true,
+        animationDuration: 350,
+        animationEasing: 'ease-out',
+        fit: false,
+        boundingBox: { x1: center.x - radius, y1: center.y - radius, x2: center.x + radius, y2: center.y + radius },
+        concentric: (ele: NodeSingular) => (ele.id() === selectedEntityId ? 2 : 1),
+        levelWidth: () => 1,
+        minNodeSpacing: 34,
+        nodeDimensionsIncludeLabels: true,
+      } as never)
+      .run()
+
+    // The focal node lands back at the center of that bounding box, so we can pan
+    // to it immediately rather than waiting on the layout to finish.
     const container = cy.container()
     const width = container?.clientWidth ?? 0
     const height = container?.clientHeight ?? 0
@@ -180,10 +201,9 @@ export function GraphView({
     const targetY = height / 2
 
     const zoom = Math.max(cy.zoom(), 1.6)
-    const pos = node.position()
-    const pan = { x: targetX - pos.x * zoom, y: targetY - pos.y * zoom }
+    const pan = { x: targetX - center.x * zoom, y: targetY - center.y * zoom }
 
-    cy.animate({ zoom, pan }, { duration: 450, easing: 'ease-out' })
+    cy.animate({ zoom, pan }, { duration: 400, easing: 'ease-out' })
   }, [cy, selectedEntityId])
 
   return (
