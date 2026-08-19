@@ -3,6 +3,7 @@ import { TopBar } from './components/TopBar'
 import { GraphView } from './components/GraphView'
 import { EntityCard } from './components/EntityCard'
 import { Legend } from './components/Legend'
+import { SeoContent } from './components/SeoContent'
 import { useMythologyData } from './hooks/useMythologyData'
 import { useTheme } from './hooks/useTheme'
 import { resolveRelationshipsForEntity } from './utils/relationshipLabels'
@@ -58,6 +59,7 @@ function App() {
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-canvas text-ink">
+      <SeoContent entities={entities} mythologyName={mythologyName} />
       <GraphView
         entities={entities}
         relationships={relationships}
