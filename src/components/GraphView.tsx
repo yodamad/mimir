@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import cytoscape from 'cytoscape'
 import fcose from 'cytoscape-fcose'
 import CytoscapeComponent from 'react-cytoscapejs'
-import type { Core, NodeSingular, StylesheetJsonBlock } from 'cytoscape'
+import type { Core, StylesheetJsonBlock } from 'cytoscape'
 import { buildGraphElements } from '../utils/graphElements'
 import { RELATIONSHIP_TYPES } from '../types/relationshipMeta'
 import { getGroupColors, getTypeStyles, type ThemeMode } from '../theme/entityColors'
@@ -48,13 +48,17 @@ function buildStylesheet(theme: ThemeMode): StylesheetJsonBlock[] {
     {
       selector: 'edge',
       style: {
-        width: 1.4,
+        width: 1.2,
         'curve-style': 'bezier',
         opacity: theme === 'dark' ? 0.55 : 0.65,
         label: 'data(label)',
         'font-size': 9,
         'font-family': 'Inter, system-ui, sans-serif',
         'text-opacity': 0,
+        'text-rotation': 'autorotate',
+        'text-wrap': 'wrap',
+        'text-max-width': '80px',
+        'line-height': 1.05,
         color: edgeTextColor,
         'text-background-color': canvasBg,
         'text-background-opacity': 0.85,
@@ -180,23 +184,24 @@ export function GraphView({
     neighborhood.edges().addClass('focus-edge')
 
     const center = node.position()
-    const neighborCount = neighborhood.nodes().length - 1
-    const radius = Math.min(380, Math.max(140, 100 + neighborCount * 11))
 
-    neighborhood
-      .layout({
-        name: 'concentric',
-        animate: true,
-        animationDuration: 350,
-        animationEasing: 'ease-out',
-        fit: false,
-        boundingBox: { x1: center.x - radius, y1: center.y - radius, x2: center.x + radius, y2: center.y + radius },
-        concentric: (ele: NodeSingular) => (ele.id() === selectedEntityId ? 2 : 1),
-        levelWidth: () => 1,
-        minNodeSpacing: 34,
-        nodeDimensionsIncludeLabels: true,
-      } as never)
-      .run()
+    // Cytoscape's concentric layout sizes the ring purely from node count and
+    // spacing, with no floor — a node with few neighbors (e.g. Persephone, 6)
+    // gets a tiny radius that can't fit a wrapped edge label, while a node with
+    // many (e.g. Zeus, 21) gets an oversized one. Position the ring ourselves
+    // instead, so short edges still get enough room for their labels.
+    const ringNodes = neighborhood.nodes().filter((n) => n.id() !== selectedEntityId)
+    const count = ringNodes.length
+    const radius = Math.min(300, Math.max(130, 90 + count * 9))
+    const startAngle = -Math.PI / 2
+
+    ringNodes.forEach((n, i) => {
+      const theta = startAngle + (count > 0 ? (2 * Math.PI * i) / count : 0)
+      n.animate(
+        { position: { x: center.x + radius * Math.cos(theta), y: center.y + radius * Math.sin(theta) } },
+        { duration: 350, easing: 'ease-out' },
+      )
+    })
 
     // The focal node lands back at the center of that bounding box, so we can pan
     // to it immediately rather than waiting on the layout to finish.
