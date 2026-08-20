@@ -1,9 +1,11 @@
-import { Moon, Search, Sun } from 'lucide-react'
+import { useState } from 'react'
+import { Moon, Plus, Search, Sun } from 'lucide-react'
 import { RELATIONSHIP_GROUPS } from '../types/relationshipMeta'
 import { getGroupColors, getTypeStyles, type ThemeMode } from '../theme/entityColors'
 import type { MythologyMeta } from '../data/mythologies'
 import type { Entity, EntityType, RelationshipGroup } from '../types/entity'
 import { PathTrail } from './PathTrail'
+import { RequestEntityModal } from './RequestEntityModal'
 
 const CHIP_BASE =
   'flex items-center gap-1.5 rounded-full border px-3 py-1 font-sans text-xs font-medium tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas'
@@ -52,6 +54,7 @@ export function TopBar({
   const typeStyles = getTypeStyles(theme)
   const groupColors = getGroupColors(theme)
   const mythologyName = mythologies.find((m) => m.id === activeMythologyId)?.name ?? activeMythologyId
+  const [requestModalOpen, setRequestModalOpen] = useState(false)
 
   return (
     <header className="pointer-events-none absolute top-0 left-0 right-0 z-20 flex flex-col gap-3 bg-gradient-to-b from-canvas via-canvas/95 to-transparent px-6 pt-5 pb-8">
@@ -88,6 +91,14 @@ export function TopBar({
             className="w-full rounded-full border border-hairline bg-panel/80 py-2 pl-9 pr-4 font-sans text-sm text-ink placeholder:text-muted outline-none backdrop-blur-md transition-colors focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
           />
         </div>
+
+        <button
+          onClick={() => setRequestModalOpen(true)}
+          className="flex shrink-0 items-center gap-1.5 rounded-full border border-hairline bg-panel/80 px-3 py-1.5 font-sans text-xs font-medium tracking-wide text-muted backdrop-blur-md transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+        >
+          <Plus className="h-4 w-4" />
+          Request a new item
+        </button>
 
         <button
           onClick={onToggleTheme}
@@ -137,6 +148,13 @@ export function TopBar({
         selectedEntityId={selectedEntityId}
         onSelect={onSelectPathEntry}
         theme={theme}
+      />
+
+      <RequestEntityModal
+        open={requestModalOpen}
+        mythologies={mythologies}
+        activeMythologyId={activeMythologyId}
+        onClose={() => setRequestModalOpen(false)}
       />
     </header>
   )

@@ -1,0 +1,22 @@
+name: New entity request
+description: Suggest a god, goddess, hero, or other entity to add to Mimir
+title: "[New Entity] "
+labels: ["new-entity-request"]
+body:
+  - type: input
+    id: entity_name
+    attributes:
+      label: Entity name
+      description: The name of the god, goddess, hero, or other figure you'd like added
+      placeholder: e.g. Hades
+    validations:
+      required: true
+  - type: dropdown
+    id: mythology
+    attributes:
+      label: Mythology
+      description: Which mythology does this entity belong to?
+      options:
+        - Greek
+    validations:
+      required: true
