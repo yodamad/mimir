@@ -6,6 +6,7 @@ import { Legend } from './components/Legend'
 import { SeoContent } from './components/SeoContent'
 import { useMythologyData } from './hooks/useMythologyData'
 import { useTheme } from './hooks/useTheme'
+import { usePathHistory } from './hooks/usePathHistory'
 import { resolveRelationshipsForEntity } from './utils/relationshipLabels'
 import { MYTHOLOGIES, getMythologyData } from './data/mythologies'
 import { RELATIONSHIP_GROUPS } from './types/relationshipMeta'
@@ -32,7 +33,8 @@ function App() {
     })
   }, [entities, categoryToType])
 
-  const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null)
+  const pathHistory = usePathHistory()
+  const { selectedEntityId } = pathHistory
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategories, setActiveCategories] = useState<Set<string>>(() => new Set(categories))
   const [activeGroups, setActiveGroups] = useState<Set<RelationshipGroup>>(
@@ -42,7 +44,7 @@ function App() {
   const handleChangeMythology = (id: string) => {
     const { entities: nextEntities } = getMythologyData(id) as { entities: Entity[] }
     setActiveMythologyId(id)
-    setSelectedEntityId(null)
+    pathHistory.reset()
     setSearchQuery('')
     setActiveCategories(new Set(nextEntities.map((e) => e.category)))
   }
@@ -71,8 +73,6 @@ function App() {
     [selectedEntityId, relationships, entityById],
   )
 
-  const handleNodeClick = (id: string) => setSelectedEntityId(id || null)
-
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-canvas text-ink">
       <SeoContent entities={entities} mythologyName={mythologyName} />
@@ -83,7 +83,8 @@ function App() {
         activeCategories={activeCategories}
         activeGroups={activeGroups}
         selectedEntityId={selectedEntityId}
-        onNodeClick={handleNodeClick}
+        path={pathHistory.path}
+        onNodeClick={pathHistory.select}
         theme={theme}
       />
       <TopBar
@@ -100,13 +101,17 @@ function App() {
         onToggleGroup={toggleGroup}
         theme={theme}
         onToggleTheme={toggleTheme}
+        path={pathHistory.path}
+        entityById={entityById}
+        selectedEntityId={selectedEntityId}
+        onSelectPathEntry={pathHistory.select}
       />
       <Legend theme={theme} />
       <EntityCard
         entity={selectedEntity}
         relationships={selectedRelationships}
-        onSelectRelated={setSelectedEntityId}
-        onClose={() => setSelectedEntityId(null)}
+        onSelectRelated={pathHistory.select}
+        onClose={() => pathHistory.select('')}
         theme={theme}
       />
     </div>

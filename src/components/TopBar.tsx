@@ -2,7 +2,8 @@ import { Moon, Search, Sun } from 'lucide-react'
 import { RELATIONSHIP_GROUPS } from '../types/relationshipMeta'
 import { getGroupColors, getTypeStyles, type ThemeMode } from '../theme/entityColors'
 import type { MythologyMeta } from '../data/mythologies'
-import type { EntityType, RelationshipGroup } from '../types/entity'
+import type { Entity, EntityType, RelationshipGroup } from '../types/entity'
+import { PathTrail } from './PathTrail'
 
 const CHIP_BASE =
   'flex items-center gap-1.5 rounded-full border px-3 py-1 font-sans text-xs font-medium tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas'
@@ -23,6 +24,10 @@ interface TopBarProps {
   onToggleGroup: (group: RelationshipGroup) => void
   theme: ThemeMode
   onToggleTheme: () => void
+  path: string[]
+  entityById: Map<string, Entity>
+  selectedEntityId: string | null
+  onSelectPathEntry: (id: string) => void
 }
 
 export function TopBar({
@@ -39,6 +44,10 @@ export function TopBar({
   onToggleGroup,
   theme,
   onToggleTheme,
+  path,
+  entityById,
+  selectedEntityId,
+  onSelectPathEntry,
 }: TopBarProps) {
   const typeStyles = getTypeStyles(theme)
   const groupColors = getGroupColors(theme)
@@ -121,6 +130,14 @@ export function TopBar({
           )
         })}
       </div>
+
+      <PathTrail
+        path={path}
+        entityById={entityById}
+        selectedEntityId={selectedEntityId}
+        onSelect={onSelectPathEntry}
+        theme={theme}
+      />
     </header>
   )
 }

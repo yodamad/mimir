@@ -16,6 +16,7 @@ function buildStylesheet(theme: ThemeMode): StylesheetJsonBlock[] {
   const canvasBg = theme === 'dark' ? '#0c0a16' : '#f6f4fb'
   const inkColor = theme === 'dark' ? '#f2eefb' : '#17132a'
   const edgeTextColor = theme === 'dark' ? '#e5e1f5' : '#332c4d'
+  const pathColor = theme === 'dark' ? '#f2b84a' : '#b8790a'
 
   return [
     {
@@ -81,7 +82,18 @@ function buildStylesheet(theme: ThemeMode): StylesheetJsonBlock[] {
       },
     },
     { selector: 'edge.focus-edge', style: { 'text-opacity': 1, width: 2.2, opacity: 1 } },
+    {
+      selector: 'node.path-visited',
+      style: { 'border-width': 3, 'border-style': 'dashed', 'border-color': pathColor, opacity: 1 },
+    },
+    { selector: 'edge.path-edge', style: { 'line-color': pathColor, 'target-arrow-color': pathColor, width: 2, opacity: 1 } },
+    { selector: '.context-dimmed.path-visited', style: { opacity: 0.9 } },
+    { selector: '.context-dimmed.path-edge', style: { opacity: 0.6 } },
   ]
+}
+
+function pairKey(a: string, b: string): string {
+  return a < b ? `${a}|${b}` : `${b}|${a}`
 }
 
 interface GraphViewProps {
@@ -91,6 +103,7 @@ interface GraphViewProps {
   activeCategories: Set<string>
   activeGroups: Set<RelationshipGroup>
   selectedEntityId: string | null
+  path: string[]
   onNodeClick: (id: string) => void
   theme: ThemeMode
 }
@@ -102,11 +115,19 @@ export function GraphView({
   activeCategories,
   activeGroups,
   selectedEntityId,
+  path,
   onNodeClick,
   theme,
 }: GraphViewProps) {
   const elements = useMemo(() => buildGraphElements(entities, relationships), [entities, relationships])
   const stylesheet = useMemo(() => buildStylesheet(theme), [theme])
+  const edgeLookup = useMemo(() => {
+    const map = new Map<string, string>()
+    relationships.forEach((rel, index) => {
+      map.set(pairKey(rel.source, rel.target), `edge-${index}-${rel.source}-${rel.target}`)
+    })
+    return map
+  }, [relationships])
   const [cy, setCy] = useState<Core | null>(null)
   const layoutRanRef = useRef(false)
   const onNodeClickRef = useRef(onNodeClick)
@@ -171,7 +192,14 @@ export function GraphView({
   // node instead of crossing through whatever the force layout happened to produce.
   useEffect(() => {
     if (!cy) return
-    cy.elements().removeClass('context-dimmed').removeClass('focus-highlight').removeClass('focus-edge')
+    cy.elements().removeClass('context-dimmed focus-highlight focus-edge path-visited path-edge')
+
+    path.forEach((id) => cy.getElementById(id).addClass('path-visited'))
+    for (let i = 0; i < path.length - 1; i++) {
+      const edgeId = edgeLookup.get(pairKey(path[i], path[i + 1]))
+      if (edgeId) cy.getElementById(edgeId).addClass('path-edge')
+    }
+
     if (!selectedEntityId) return
     const node = cy.getElementById(selectedEntityId)
     if (node.empty()) return
@@ -214,7 +242,7 @@ export function GraphView({
     const pan = { x: targetX - center.x * zoom, y: targetY - center.y * zoom }
 
     cy.animate({ zoom, pan }, { duration: 400, easing: 'ease-out' })
-  }, [cy, selectedEntityId])
+  }, [cy, selectedEntityId, path, edgeLookup])
 
   return (
     <div className="graph-canvas absolute inset-0">
