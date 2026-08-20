@@ -32,6 +32,10 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           base_branch: main
+          # TEMPORARY: only to diagnose the immediate is_error:true failure. Remove this
+          # once fixed — it prints raw tool output (could include anything that looks
+          # like a secret) into a log visible to anyone on a public repo.
+          show_full_output: true
           claude_args: |
             --allowedTools "Read,Edit,Write,Bash(git:*),Bash(gh:*),WebSearch"
           prompt: |
