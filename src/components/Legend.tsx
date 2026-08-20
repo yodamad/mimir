@@ -26,12 +26,12 @@ interface LegendProps {
 }
 
 export function Legend({ theme }: LegendProps) {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(() => window.innerWidth >= 640)
   const types = getTypeStyles(theme)
   const groups = getGroupColors(theme)
 
   return (
-    <div className="absolute bottom-5 left-5 z-20 w-56 overflow-hidden rounded-2xl border border-hairline bg-panel/90 shadow-xl backdrop-blur-xl">
+    <div className="absolute bottom-5 left-5 z-20 w-48 max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-2xl border border-hairline bg-panel/90 shadow-xl backdrop-blur-xl sm:w-56">
       <button
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}

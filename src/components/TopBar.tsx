@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Moon, Plus, Search, Sun } from 'lucide-react'
+import { Moon, Plus, Search, SlidersHorizontal, Sun } from 'lucide-react'
 import { RELATIONSHIP_GROUPS } from '../types/relationshipMeta'
 import { getGroupColors, getTypeStyles, type ThemeMode } from '../theme/entityColors'
 import type { MythologyMeta } from '../data/mythologies'
@@ -55,10 +55,12 @@ export function TopBar({
   const groupColors = getGroupColors(theme)
   const mythologyName = mythologies.find((m) => m.id === activeMythologyId)?.name ?? activeMythologyId
   const [requestModalOpen, setRequestModalOpen] = useState(false)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   return (
-    <header className="pointer-events-none absolute top-0 left-0 right-0 z-20 flex flex-col gap-3 bg-gradient-to-b from-canvas via-canvas/95 to-transparent px-6 pt-5 pb-8">
-      <div className="pointer-events-auto flex items-center gap-3">
+    <header className="pointer-events-none absolute top-0 left-0 right-0 z-20 flex flex-col gap-3 bg-gradient-to-b from-canvas via-canvas/95 to-transparent px-4 pt-4 pb-4 sm:px-6 sm:pt-5 sm:pb-8">
+      <div className="pointer-events-auto flex flex-wrap items-center gap-3">
         <h1 className="flex items-baseline gap-2.5">
           <span className="font-display text-2xl font-semibold text-ink">Mimir</span>
           {mythologies.length > 1 ? (
@@ -81,7 +83,48 @@ export function TopBar({
           )}
         </h1>
 
-        <div className="relative ml-auto w-64">
+        <div className="order-1 ml-auto flex shrink-0 items-center gap-2 sm:order-3 sm:ml-0">
+          <button
+            onClick={() => setMobileSearchOpen((v) => !v)}
+            aria-label="Toggle search"
+            aria-expanded={mobileSearchOpen}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-hairline bg-panel/80 text-muted backdrop-blur-md transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:hidden"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+
+          <button
+            onClick={() => setMobileFiltersOpen((v) => !v)}
+            aria-label="Toggle filters"
+            aria-expanded={mobileFiltersOpen}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-hairline bg-panel/80 text-muted backdrop-blur-md transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:hidden"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+          </button>
+
+          <button
+            onClick={() => setRequestModalOpen(true)}
+            aria-label="Request a new item"
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-hairline bg-panel/80 px-2.5 py-1.5 font-sans text-xs font-medium tracking-wide text-muted backdrop-blur-md transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:px-3"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Request a new item</span>
+          </button>
+
+          <button
+            onClick={onToggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hairline bg-panel/80 text-muted backdrop-blur-md transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+        </div>
+
+        <div
+          className={`relative order-2 w-full sm:order-2 sm:ml-auto sm:w-64 ${
+            mobileSearchOpen ? 'flex' : 'hidden'
+          } sm:flex`}
+        >
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
           <input
             type="text"
@@ -91,25 +134,11 @@ export function TopBar({
             className="w-full rounded-full border border-hairline bg-panel/80 py-2 pl-9 pr-4 font-sans text-sm text-ink placeholder:text-muted outline-none backdrop-blur-md transition-colors focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
           />
         </div>
-
-        <button
-          onClick={() => setRequestModalOpen(true)}
-          className="flex shrink-0 items-center gap-1.5 rounded-full border border-hairline bg-panel/80 px-3 py-1.5 font-sans text-xs font-medium tracking-wide text-muted backdrop-blur-md transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
-        >
-          <Plus className="h-4 w-4" />
-          Request a new item
-        </button>
-
-        <button
-          onClick={onToggleTheme}
-          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hairline bg-panel/80 text-muted backdrop-blur-md transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
-        >
-          {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </button>
       </div>
 
-      <div className="pointer-events-auto flex flex-wrap items-center gap-2">
+      <div
+        className={`pointer-events-auto flex-wrap items-center gap-2 ${mobileFiltersOpen ? 'flex' : 'hidden'} sm:flex`}
+      >
         {categories.map((category) => {
           const active = activeCategories.has(category)
           const dotColor = typeStyles[categoryToType[category] ?? 'god'].line

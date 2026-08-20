@@ -74,7 +74,7 @@ function App() {
   )
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-canvas text-ink">
+    <div className="relative h-dvh w-full overflow-hidden bg-canvas text-ink">
       <SeoContent entities={entities} mythologyName={mythologyName} />
       <GraphView
         entities={entities}

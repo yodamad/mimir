@@ -26,12 +26,15 @@ export function EntityCard({ entity, relationships, onSelectRelated, onClose, th
 
   return (
     <aside
-      className={`absolute top-5 right-5 bottom-5 z-30 w-full max-w-sm overflow-y-auto rounded-2xl border border-hairline bg-panel/95 shadow-2xl backdrop-blur-xl transition-all duration-300 ease-out ${
-        entity ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-6 opacity-0'
+      className={`fixed inset-x-0 bottom-0 z-30 max-h-[75vh] overflow-y-auto rounded-t-2xl border-t border-hairline bg-panel/95 shadow-2xl backdrop-blur-xl transition-transform duration-300 ease-out sm:absolute sm:inset-x-auto sm:top-5 sm:right-5 sm:bottom-5 sm:left-auto sm:max-h-none sm:w-full sm:max-w-sm sm:rounded-2xl sm:border sm:transition-all ${
+        entity
+          ? 'translate-y-0 opacity-100 sm:translate-x-0'
+          : 'pointer-events-none translate-y-full opacity-100 sm:translate-y-0 sm:translate-x-6 sm:opacity-0'
       }`}
     >
       {entity && typeStyle && (
         <div className="flex flex-col gap-5 p-6">
+          <div className="mx-auto -mt-2 h-1 w-10 shrink-0 rounded-full bg-hairline sm:hidden" />
           <div className="flex items-start justify-between">
             <div
               className="flex h-16 w-16 items-center justify-center rounded-full border-2 font-display text-xl font-semibold"

@@ -45,7 +45,7 @@ export function RequestEntityModal({ open, mythologies, activeMythologyId, onClo
 
   return (
     <div
-      className="pointer-events-auto fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      className="pointer-events-auto fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div

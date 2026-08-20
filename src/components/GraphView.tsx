@@ -234,9 +234,11 @@ export function GraphView({
     const container = cy.container()
     const width = container?.clientWidth ?? 0
     const height = container?.clientHeight ?? 0
-    const reservedRight = Math.min(420, width * 0.45)
+    const isMobile = width < 640
+    const reservedRight = isMobile ? 0 : Math.min(420, width * 0.45)
+    const reservedBottom = isMobile ? Math.min(height * 0.6, 420) : 0
     const targetX = (width - reservedRight) / 2
-    const targetY = height / 2
+    const targetY = (height - reservedBottom) / 2
 
     const zoom = Math.max(cy.zoom(), 1.6)
     const pan = { x: targetX - center.x * zoom, y: targetY - center.y * zoom }
