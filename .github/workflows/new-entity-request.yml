@@ -18,8 +18,10 @@ permissions:
 
 jobs:
   handle-request:
+    # Checks the issue's current label set rather than only the label that triggered
+    # this event, so it fires regardless of which of the two labels was added last.
     if: >-
-      github.event.label.name == 'agent-approved' &&
+      contains(github.event.issue.labels.*.name, 'agent-approved') &&
       contains(github.event.issue.labels.*.name, 'new-entity-request')
     runs-on: ubuntu-latest
     steps:
