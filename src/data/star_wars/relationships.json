@@ -92,6 +92,9 @@
   { "source": "nexu", "target": "padme_amidala", "type": "rival_of", "label": "Set upon her in the Petranaki execution arena" },
   { "source": "reek", "target": "geonosis", "type": "located_in" },
   { "source": "reek", "target": "anakin_skywalker", "type": "ally_of", "label": "Tamed and ridden by him to help the captives escape" },
+  { "source": "ewok", "target": "endor", "type": "located_in" },
+  { "source": "ewok", "target": "leia_organa", "type": "ally_of", "label": "Welcomed her into their tribe and joined her strike team against the Empire" },
+  { "source": "ewok", "target": "c_3po", "type": "ally_of", "label": "Revered him as a golden deity after his crash-landing among them" },
 
   { "source": "jyn_erso", "target": "cassian_andor", "type": "ally_of", "label": "Led the mission to steal the Death Star plans together" },
   { "source": "jyn_erso", "target": "grand_moff_tarkin", "type": "rival_of", "label": "Watched him order the Death Star to fire on Scarif to erase the mission" },
