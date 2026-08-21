@@ -1,0 +1,37 @@
+name: Ensure Request Labels
+
+# GitHub issue forms only ever apply labels that already exist in the repo — they
+# never create missing ones, and a form silently drops a label rather than erroring
+# when it's missing. We've hit that gap three times now (new-entity-request,
+# new-mythology-request, and the triage workflow's own "triaged" marker), each time
+# only noticed after an issue was created without its label. This keeps all of them
+# present so it can't happen again.
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/ISSUE_TEMPLATE/**
+      - .github/workflows/ensure-request-labels.yml
+      - .github/workflows/request-triage.yml
+      - .github/workflows/request-build.yml
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  ensure-labels:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Create request-pipeline labels if missing
+        run: |
+          gh label create new-entity-request --repo "${{ github.repository }}" \
+            --color ededed --description "Auto-applied by the new entity request issue form" --force
+          gh label create new-mythology-request --repo "${{ github.repository }}" \
+            --color ededed --description "Auto-applied by the new mythology request issue form" --force
+          gh label create agent-approved --repo "${{ github.repository }}" \
+            --color 0e8a16 --description "Maintainer approved — lets the build agent process this issue" --force
+          gh label create triaged --repo "${{ github.repository }}" \
+            --color c5def5 --description "Already processed by the triage agent" --force
