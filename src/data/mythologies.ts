@@ -39,3 +39,12 @@ export function getMythologyData(mythologyId: string) {
     relationships: relationshipModules[meta.relationshipsPath].default,
   }
 }
+
+/**
+ * Reads a mythology id from a bare query flag, e.g. `?greek` rather than
+ * `?mythology=greek`, so links like `mimir.app/?lotr` pick that mythology.
+ */
+export function getMythologyIdFromSearch(search: string): string | null {
+  const params = new URLSearchParams(search)
+  return MYTHOLOGIES.find((m) => params.has(m.id))?.id ?? null
+}

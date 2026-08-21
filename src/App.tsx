@@ -8,13 +8,15 @@ import { useMythologyData } from './hooks/useMythologyData'
 import { useTheme } from './hooks/useTheme'
 import { usePathHistory } from './hooks/usePathHistory'
 import { resolveRelationshipsForEntity } from './utils/relationshipLabels'
-import { MYTHOLOGIES, getMythologyData } from './data/mythologies'
+import { MYTHOLOGIES, getMythologyData, getMythologyIdFromSearch } from './data/mythologies'
 import { RELATIONSHIP_GROUPS } from './types/relationshipMeta'
 import { TYPE_ORDER } from './theme/entityColors'
 import type { Entity, EntityType, RelationshipGroup } from './types/entity'
 
 function App() {
-  const [activeMythologyId, setActiveMythologyId] = useState(MYTHOLOGIES[0]?.id ?? 'greek')
+  const [activeMythologyId, setActiveMythologyId] = useState(
+    () => getMythologyIdFromSearch(window.location.search) ?? MYTHOLOGIES[0]?.id ?? 'greek',
+  )
   const { entities, relationships, entityById } = useMythologyData(activeMythologyId)
   const mythologyName = MYTHOLOGIES.find((m) => m.id === activeMythologyId)?.name ?? activeMythologyId
   const { theme, toggleTheme } = useTheme()
@@ -47,6 +49,7 @@ function App() {
     pathHistory.reset()
     setSearchQuery('')
     setActiveCategories(new Set(nextEntities.map((e) => e.category)))
+    window.history.replaceState(null, '', `?${id}`)
   }
 
   const toggleCategory = (category: string) => {
