@@ -18,6 +18,10 @@ name: New Request — Triage
 # "agent-approved" label. The "triaged" label marks issues this workflow has already
 # processed so re-runs don't reprocess them; ensure-labels.yml keeps it (and the other
 # labels this pipeline depends on) created.
+#
+# Runs on Haiku: this is bounded lookup-and-comment work (read a couple of files, run a
+# web search, post a verdict), not content generation that ships in a PR, so the cheaper
+# model is a good fit. The write-capable build stage (request-build.yml) stays on Sonnet.
 on:
   schedule:
     - cron: '*/10 * * * *'
@@ -39,6 +43,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           base_branch: main
           claude_args: |
+            --model claude-haiku-4-5-20251001
             --allowedTools "Read,Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue close:*),Bash(gh issue edit:*),WebSearch"
           prompt: |
             List open issues labeled "new-entity-request" that do NOT also have the
@@ -93,6 +98,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           base_branch: main
           claude_args: |
+            --model claude-haiku-4-5-20251001
             --allowedTools "Read,Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue close:*),Bash(gh issue edit:*),WebSearch"
           prompt: |
             List open issues labeled "new-mythology-request" that do NOT also have the
