@@ -77,6 +77,7 @@ function App() {
     <div className="relative h-dvh w-full overflow-hidden bg-canvas text-ink">
       <SeoContent entities={entities} mythologyName={mythologyName} />
       <GraphView
+        key={activeMythologyId}
         entities={entities}
         relationships={relationships}
         searchQuery={searchQuery}

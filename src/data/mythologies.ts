@@ -16,6 +16,7 @@ const relationshipModules = import.meta.glob('./*/relationships.json', { eager: 
 
 const MYTHOLOGY_NAMES: Record<string, string> = {
   greek: 'Greek',
+  lotr: 'Lord of the Rings',
 }
 
 export const MYTHOLOGIES: MythologyMeta[] = Object.keys(entityModules)
