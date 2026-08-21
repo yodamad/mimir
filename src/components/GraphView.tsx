@@ -55,9 +55,7 @@ function buildStylesheet(theme: ThemeMode): StylesheetJsonBlock[] {
         'font-family': 'Inter, system-ui, sans-serif',
         'text-opacity': 0,
         'text-rotation': 'autorotate',
-        'text-wrap': 'wrap',
-        'text-max-width': '80px',
-        'line-height': 1.05,
+        'text-wrap': 'none',
         color: edgeTextColor,
         'text-background-color': canvasBg,
         'text-background-opacity': 0.85,
@@ -129,6 +127,7 @@ export function GraphView({
     return map
   }, [relationships])
   const [cy, setCy] = useState<Core | null>(null)
+  const [edgeTooltip, setEdgeTooltip] = useState<{ label: string; x: number; y: number } | null>(null)
   const layoutRanRef = useRef(false)
   const onNodeClickRef = useRef(onNodeClick)
   onNodeClickRef.current = onNodeClick
@@ -143,6 +142,19 @@ export function GraphView({
     cy.on('tap', (evt) => {
       if (evt.target === cy) onNodeClickRef.current('')
     })
+
+    // Edge labels on canvas are truncated to stay legible; reveal the full
+    // sentence on hover as ordinary DOM text instead of rotated canvas text.
+    cy.on('mouseover', 'edge', (evt) => {
+      const edge = evt.target
+      if (!edge.hasClass('focus-edge')) return
+      const fullLabel = edge.data('fullLabel') as string
+      if (fullLabel === (edge.data('label') as string)) return
+      const mid = edge.renderedMidpoint()
+      setEdgeTooltip({ label: fullLabel, x: mid.x, y: mid.y })
+    })
+    cy.on('mouseout', 'edge', () => setEdgeTooltip(null))
+    cy.on('pan zoom', () => setEdgeTooltip(null))
   }, [cy])
 
   // Keep Cytoscape's canvas-rendered styles in sync with the current theme.
@@ -192,6 +204,7 @@ export function GraphView({
   // node instead of crossing through whatever the force layout happened to produce.
   useEffect(() => {
     if (!cy) return
+    setEdgeTooltip(null)
     cy.elements().removeClass('context-dimmed focus-highlight focus-edge path-visited path-edge')
 
     path.forEach((id) => cy.getElementById(id).addClass('path-visited'))
@@ -213,7 +226,7 @@ export function GraphView({
 
     // Cytoscape's concentric layout sizes the ring purely from node count and
     // spacing, with no floor — a node with few neighbors (e.g. Persephone, 6)
-    // gets a tiny radius that can't fit a wrapped edge label, while a node with
+    // gets a tiny radius that can't fit an edge label, while a node with
     // many (e.g. Zeus, 21) gets an oversized one. Position the ring ourselves
     // instead, so short edges still get enough room for their labels.
     const ringNodes = neighborhood.nodes().filter((n) => n.id() !== selectedEntityId)
@@ -255,6 +268,14 @@ export function GraphView({
         style={{ width: '100%', height: '100%' }}
         cy={setCy}
       />
+      {edgeTooltip && (
+        <div
+          className="pointer-events-none absolute z-10 max-w-[240px] -translate-x-1/2 -translate-y-[calc(100%+10px)] rounded-xl border border-hairline bg-panel/95 px-3 py-2 font-sans text-xs leading-snug text-ink shadow-lg backdrop-blur-md"
+          style={{ left: edgeTooltip.x, top: edgeTooltip.y }}
+        >
+          {edgeTooltip.label}
+        </div>
+      )}
     </div>
   )
 }
