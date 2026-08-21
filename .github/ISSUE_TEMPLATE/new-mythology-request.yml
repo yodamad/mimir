@@ -1,0 +1,21 @@
+name: New mythology request
+description: Suggest an entirely new mythology, pantheon, or fictional universe to add to Mimir
+title: "[New Mythology] "
+labels: ["new-mythology-request"]
+body:
+  - type: input
+    id: mythology_name
+    attributes:
+      label: Mythology name
+      description: The mythology, pantheon, or fictional universe you'd like added
+      placeholder: e.g. Norse
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes (optional)
+      description: Any specific figures, sources, or details you'd like considered
+      placeholder: e.g. Please include Odin, Thor, and Loki
+    validations:
+      required: false
