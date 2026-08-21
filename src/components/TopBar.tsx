@@ -30,6 +30,7 @@ interface TopBarProps {
   entityById: Map<string, Entity>
   selectedEntityId: string | null
   onSelectPathEntry: (id: string) => void
+  onResetPath: () => void
 }
 
 export function TopBar({
@@ -50,6 +51,7 @@ export function TopBar({
   entityById,
   selectedEntityId,
   onSelectPathEntry,
+  onResetPath,
 }: TopBarProps) {
   const typeStyles = getTypeStyles(theme)
   const groupColors = getGroupColors(theme)
@@ -176,6 +178,7 @@ export function TopBar({
         entityById={entityById}
         selectedEntityId={selectedEntityId}
         onSelect={onSelectPathEntry}
+        onReset={onResetPath}
         theme={theme}
       />
 

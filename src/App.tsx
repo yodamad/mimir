@@ -129,6 +129,7 @@ function App() {
         entityById={entityById}
         selectedEntityId={selectedEntityId}
         onSelectPathEntry={pathHistory.select}
+        onResetPath={pathHistory.reset}
       />
       <Legend theme={theme} />
       <EntityCard
