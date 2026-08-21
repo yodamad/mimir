@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ExternalLink, X } from 'lucide-react'
 import type { MythologyMeta } from '../data/mythologies'
-import { buildRequestEntityIssueUrl, OTHER_MYTHOLOGY_ID, OTHER_MYTHOLOGY_LABEL } from '../utils/requestEntity'
+import { buildRequestEntityIssueUrl, buildRequestMythologyIssueUrl } from '../utils/requestEntity'
 
 interface RequestEntityModalProps {
   open: boolean
@@ -10,16 +10,27 @@ interface RequestEntityModalProps {
   onClose: () => void
 }
 
+type RequestMode = 'entity' | 'mythology'
+
+const MODE_TAB_BASE =
+  'flex-1 rounded-full px-3 py-1.5 text-center font-sans text-xs font-medium tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60'
+const MODE_TAB_ACTIVE = 'bg-accent-soft text-accent-ink'
+const MODE_TAB_INACTIVE = 'text-muted hover:text-ink'
+
 export function RequestEntityModal({ open, mythologies, activeMythologyId, onClose }: RequestEntityModalProps) {
+  const [mode, setMode] = useState<RequestMode>('entity')
   const [entityName, setEntityName] = useState('')
   const [mythologyId, setMythologyId] = useState(activeMythologyId)
   const [newMythologyName, setNewMythologyName] = useState('')
+  const [mythologyNotes, setMythologyNotes] = useState('')
 
   useEffect(() => {
     if (open) {
+      setMode('entity')
       setEntityName('')
       setMythologyId(activeMythologyId)
       setNewMythologyName('')
+      setMythologyNotes('')
     }
   }, [open, activeMythologyId])
 
@@ -36,18 +47,18 @@ export function RequestEntityModal({ open, mythologies, activeMythologyId, onClo
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const trimmedName = entityName.trim()
-    if (!trimmedName) return
 
-    if (mythologyId === OTHER_MYTHOLOGY_ID) {
+    if (mode === 'mythology') {
       const trimmedMythology = newMythologyName.trim()
       if (!trimmedMythology) return
-      const url = buildRequestEntityIssueUrl(trimmedName, OTHER_MYTHOLOGY_LABEL, trimmedMythology)
+      const url = buildRequestMythologyIssueUrl(trimmedMythology, mythologyNotes.trim() || undefined)
       window.open(url, '_blank', 'noopener,noreferrer')
       onClose()
       return
     }
 
+    const trimmedName = entityName.trim()
+    if (!trimmedName) return
     const mythology = mythologies.find((m) => m.id === mythologyId)
     if (!mythology) return
     const url = buildRequestEntityIssueUrl(trimmedName, mythology.name)
@@ -65,7 +76,9 @@ export function RequestEntityModal({ open, mythologies, activeMythologyId, onClo
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
-          <h2 className="font-display text-xl font-semibold text-ink">Request a new entity</h2>
+          <h2 className="font-display text-xl font-semibold text-ink">
+            {mode === 'mythology' ? 'Request a new mythology' : 'Request a new entity'}
+          </h2>
           <button
             onClick={onClose}
             className="rounded-full p-1.5 text-muted transition-colors hover:bg-panel-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
@@ -79,57 +92,92 @@ export function RequestEntityModal({ open, mythologies, activeMythologyId, onClo
           a maintainer decides whether to approve it — after which another agent opens a pull request for review.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="request-entity-name" className="font-sans text-xs font-medium text-muted">
-              Entity name
-            </label>
-            <input
-              id="request-entity-name"
-              type="text"
-              value={entityName}
-              onChange={(e) => setEntityName(e.target.value)}
-              placeholder="e.g. Hades"
-              required
-              autoFocus
-              className="rounded-lg border border-hairline bg-panel py-2 px-3 font-sans text-sm text-ink placeholder:text-muted outline-none transition-colors focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
-            />
-          </div>
+        <div className="mt-4 flex gap-1 rounded-full border border-hairline bg-panel p-1">
+          <button
+            type="button"
+            onClick={() => setMode('entity')}
+            className={`${MODE_TAB_BASE} ${mode === 'entity' ? MODE_TAB_ACTIVE : MODE_TAB_INACTIVE}`}
+          >
+            New entity
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('mythology')}
+            className={`${MODE_TAB_BASE} ${mode === 'mythology' ? MODE_TAB_ACTIVE : MODE_TAB_INACTIVE}`}
+          >
+            New mythology
+          </button>
+        </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="request-entity-mythology" className="font-sans text-xs font-medium text-muted">
-              Mythology
-            </label>
-            <select
-              id="request-entity-mythology"
-              value={mythologyId}
-              onChange={(e) => setMythologyId(e.target.value)}
-              className="rounded-lg border border-hairline bg-panel py-2 px-3 font-sans text-sm text-ink outline-none transition-colors focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
-            >
-              {mythologies.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-              <option value={OTHER_MYTHOLOGY_ID}>{OTHER_MYTHOLOGY_LABEL}</option>
-            </select>
-          </div>
+        <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
+          {mode === 'entity' ? (
+            <>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="request-entity-name" className="font-sans text-xs font-medium text-muted">
+                  Entity name
+                </label>
+                <input
+                  id="request-entity-name"
+                  type="text"
+                  value={entityName}
+                  onChange={(e) => setEntityName(e.target.value)}
+                  placeholder="e.g. Hades"
+                  required
+                  autoFocus
+                  className="rounded-lg border border-hairline bg-panel py-2 px-3 font-sans text-sm text-ink placeholder:text-muted outline-none transition-colors focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
+                />
+              </div>
 
-          {mythologyId === OTHER_MYTHOLOGY_ID && (
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="request-entity-new-mythology" className="font-sans text-xs font-medium text-muted">
-                New mythology name
-              </label>
-              <input
-                id="request-entity-new-mythology"
-                type="text"
-                value={newMythologyName}
-                onChange={(e) => setNewMythologyName(e.target.value)}
-                placeholder="e.g. Norse"
-                required
-                className="rounded-lg border border-hairline bg-panel py-2 px-3 font-sans text-sm text-ink placeholder:text-muted outline-none transition-colors focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
-              />
-            </div>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="request-entity-mythology" className="font-sans text-xs font-medium text-muted">
+                  Mythology
+                </label>
+                <select
+                  id="request-entity-mythology"
+                  value={mythologyId}
+                  onChange={(e) => setMythologyId(e.target.value)}
+                  className="rounded-lg border border-hairline bg-panel py-2 px-3 font-sans text-sm text-ink outline-none transition-colors focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
+                >
+                  {mythologies.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="request-mythology-name" className="font-sans text-xs font-medium text-muted">
+                  Mythology name
+                </label>
+                <input
+                  id="request-mythology-name"
+                  type="text"
+                  value={newMythologyName}
+                  onChange={(e) => setNewMythologyName(e.target.value)}
+                  placeholder="e.g. Norse"
+                  required
+                  autoFocus
+                  className="rounded-lg border border-hairline bg-panel py-2 px-3 font-sans text-sm text-ink placeholder:text-muted outline-none transition-colors focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="request-mythology-notes" className="font-sans text-xs font-medium text-muted">
+                  Notes (optional)
+                </label>
+                <textarea
+                  id="request-mythology-notes"
+                  value={mythologyNotes}
+                  onChange={(e) => setMythologyNotes(e.target.value)}
+                  placeholder="e.g. Please include Odin, Thor, and Loki"
+                  rows={3}
+                  className="resize-none rounded-lg border border-hairline bg-panel py-2 px-3 font-sans text-sm text-ink placeholder:text-muted outline-none transition-colors focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
+                />
+              </div>
+            </>
           )}
 
           <button
