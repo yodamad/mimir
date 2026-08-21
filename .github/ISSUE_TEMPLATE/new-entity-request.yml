@@ -1,5 +1,5 @@
 name: New entity request
-description: Suggest a god, goddess, hero, or other entity to add to Mimir
+description: Suggest a god, goddess, hero, or other entity to add to Mimir — or an entirely new mythology
 title: "[New Entity] "
 labels: ["new-entity-request"]
 body:
@@ -15,8 +15,26 @@ body:
     id: mythology
     attributes:
       label: Mythology
-      description: Which mythology does this entity belong to?
+      description: >-
+        Which mythology does this entity belong to? Choose "Other" to request an
+        entirely new mythology, then name it below.
+      # Keep in sync with MYTHOLOGY_NAMES in src/data/mythologies.ts. The last
+      # option's text must match OTHER_MYTHOLOGY_LABEL in src/utils/requestEntity.ts
+      # exactly, since that's how the frontend prefills this dropdown.
       options:
         - Greek
+        - Lord of the Rings
+        - Star Wars
+        - Other (not listed — describe below)
     validations:
       required: true
+  - type: input
+    id: new_mythology_name
+    attributes:
+      label: New mythology name
+      description: >-
+        Only fill this in if you chose "Other" above — name of the mythology,
+        pantheon, or fictional universe to add (e.g. Norse, Egyptian).
+      placeholder: e.g. Norse
+    validations:
+      required: false

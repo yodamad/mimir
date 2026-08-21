@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ExternalLink, X } from 'lucide-react'
 import type { MythologyMeta } from '../data/mythologies'
-import { buildRequestEntityIssueUrl } from '../utils/requestEntity'
+import { buildRequestEntityIssueUrl, OTHER_MYTHOLOGY_ID, OTHER_MYTHOLOGY_LABEL } from '../utils/requestEntity'
 
 interface RequestEntityModalProps {
   open: boolean
@@ -13,11 +13,13 @@ interface RequestEntityModalProps {
 export function RequestEntityModal({ open, mythologies, activeMythologyId, onClose }: RequestEntityModalProps) {
   const [entityName, setEntityName] = useState('')
   const [mythologyId, setMythologyId] = useState(activeMythologyId)
+  const [newMythologyName, setNewMythologyName] = useState('')
 
   useEffect(() => {
     if (open) {
       setEntityName('')
       setMythologyId(activeMythologyId)
+      setNewMythologyName('')
     }
   }, [open, activeMythologyId])
 
@@ -36,6 +38,16 @@ export function RequestEntityModal({ open, mythologies, activeMythologyId, onClo
     e.preventDefault()
     const trimmedName = entityName.trim()
     if (!trimmedName) return
+
+    if (mythologyId === OTHER_MYTHOLOGY_ID) {
+      const trimmedMythology = newMythologyName.trim()
+      if (!trimmedMythology) return
+      const url = buildRequestEntityIssueUrl(trimmedName, OTHER_MYTHOLOGY_LABEL, trimmedMythology)
+      window.open(url, '_blank', 'noopener,noreferrer')
+      onClose()
+      return
+    }
+
     const mythology = mythologies.find((m) => m.id === mythologyId)
     if (!mythology) return
     const url = buildRequestEntityIssueUrl(trimmedName, mythology.name)
@@ -63,8 +75,8 @@ export function RequestEntityModal({ open, mythologies, activeMythologyId, onClo
           </button>
         </div>
         <p className="mt-1.5 font-sans text-sm text-muted">
-          This opens a pre-filled GitHub issue. Once reviewed, an agent researches the request and, if it checks out,
-          opens a pull request for review.
+          This opens a pre-filled GitHub issue. An agent researches the request and comments with its findings, then
+          a maintainer decides whether to approve it — after which another agent opens a pull request for review.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-4">
@@ -99,8 +111,26 @@ export function RequestEntityModal({ open, mythologies, activeMythologyId, onClo
                   {m.name}
                 </option>
               ))}
+              <option value={OTHER_MYTHOLOGY_ID}>{OTHER_MYTHOLOGY_LABEL}</option>
             </select>
           </div>
+
+          {mythologyId === OTHER_MYTHOLOGY_ID && (
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="request-entity-new-mythology" className="font-sans text-xs font-medium text-muted">
+                New mythology name
+              </label>
+              <input
+                id="request-entity-new-mythology"
+                type="text"
+                value={newMythologyName}
+                onChange={(e) => setNewMythologyName(e.target.value)}
+                placeholder="e.g. Norse"
+                required
+                className="rounded-lg border border-hairline bg-panel py-2 px-3 font-sans text-sm text-ink placeholder:text-muted outline-none transition-colors focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
+              />
+            </div>
+          )}
 
           <button
             type="submit"
