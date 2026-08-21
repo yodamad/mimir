@@ -7,9 +7,9 @@ export interface UsePathHistoryResult {
   reset: () => void
 }
 
-export function usePathHistory(): UsePathHistoryResult {
-  const [path, setPath] = useState<string[]>([])
-  const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null)
+export function usePathHistory(initialEntityId: string | null = null): UsePathHistoryResult {
+  const [path, setPath] = useState<string[]>(initialEntityId ? [initialEntityId] : [])
+  const [selectedEntityId, setSelectedEntityId] = useState<string | null>(initialEntityId)
 
   const select = useCallback((id: string) => {
     if (!id) {

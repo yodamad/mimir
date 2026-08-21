@@ -48,3 +48,20 @@ export function getMythologyIdFromSearch(search: string): string | null {
   const params = new URLSearchParams(search)
   return MYTHOLOGIES.find((m) => params.has(m.id))?.id ?? null
 }
+
+/** Reads the selected entity id from `?entity=zeus`, e.g. `mimir.app/?greek&entity=zeus`. */
+export function getEntityIdFromSearch(search: string): string | null {
+  return new URLSearchParams(search).get('entity')
+}
+
+const entityIdToMythologyId: Record<string, string> = {}
+for (const meta of MYTHOLOGIES) {
+  for (const entity of entityModules[meta.entitiesPath].default as { id: string }[]) {
+    entityIdToMythologyId[entity.id] = meta.id
+  }
+}
+
+/** Looks up which mythology an entity id belongs to, so `?entity=zeus` alone can select Greek. */
+export function getMythologyIdForEntity(entityId: string): string | null {
+  return entityIdToMythologyId[entityId] ?? null
+}

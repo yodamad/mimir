@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { TopBar } from './components/TopBar'
 import { GraphView } from './components/GraphView'
 import { EntityCard } from './components/EntityCard'
@@ -8,15 +8,28 @@ import { useMythologyData } from './hooks/useMythologyData'
 import { useTheme } from './hooks/useTheme'
 import { usePathHistory } from './hooks/usePathHistory'
 import { resolveRelationshipsForEntity } from './utils/relationshipLabels'
-import { MYTHOLOGIES, getMythologyData, getMythologyIdFromSearch } from './data/mythologies'
+import {
+  MYTHOLOGIES,
+  getMythologyData,
+  getMythologyIdFromSearch,
+  getEntityIdFromSearch,
+  getMythologyIdForEntity,
+} from './data/mythologies'
 import { RELATIONSHIP_GROUPS } from './types/relationshipMeta'
 import { TYPE_ORDER } from './theme/entityColors'
 import type { Entity, EntityType, RelationshipGroup } from './types/entity'
 
 function App() {
-  const [activeMythologyId, setActiveMythologyId] = useState(
-    () => getMythologyIdFromSearch(window.location.search) ?? MYTHOLOGIES[0]?.id ?? 'greek',
-  )
+  const [activeMythologyId, setActiveMythologyId] = useState(() => {
+    const search = window.location.search
+    const entityId = getEntityIdFromSearch(search)
+    return (
+      getMythologyIdFromSearch(search) ??
+      (entityId && getMythologyIdForEntity(entityId)) ??
+      MYTHOLOGIES[0]?.id ??
+      'greek'
+    )
+  })
   const { entities, relationships, entityById } = useMythologyData(activeMythologyId)
   const mythologyName = MYTHOLOGIES.find((m) => m.id === activeMythologyId)?.name ?? activeMythologyId
   const { theme, toggleTheme } = useTheme()
@@ -35,7 +48,8 @@ function App() {
     })
   }, [entities, categoryToType])
 
-  const pathHistory = usePathHistory()
+  const entityIdFromUrl = getEntityIdFromSearch(window.location.search)
+  const pathHistory = usePathHistory(entityIdFromUrl && entityById.has(entityIdFromUrl) ? entityIdFromUrl : null)
   const { selectedEntityId } = pathHistory
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategories, setActiveCategories] = useState<Set<string>>(() => new Set(categories))
@@ -49,8 +63,14 @@ function App() {
     pathHistory.reset()
     setSearchQuery('')
     setActiveCategories(new Set(nextEntities.map((e) => e.category)))
-    window.history.replaceState(null, '', `?${id}`)
   }
+
+  useEffect(() => {
+    const query = selectedEntityId
+      ? `?${activeMythologyId}&entity=${encodeURIComponent(selectedEntityId)}`
+      : `?${activeMythologyId}`
+    window.history.replaceState(null, '', query)
+  }, [activeMythologyId, selectedEntityId])
 
   const toggleCategory = (category: string) => {
     setActiveCategories((prev) => {
