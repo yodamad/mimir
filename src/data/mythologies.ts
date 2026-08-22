@@ -19,6 +19,7 @@ const MYTHOLOGY_NAMES: Record<string, string> = {
   lotr: 'Lord of the Rings',
   star_wars: 'Star Wars',
   star_trek: 'Star Trek',
+  harry_potter: 'Harry Potter',
 }
 
 export const MYTHOLOGIES: MythologyMeta[] = Object.keys(entityModules)
