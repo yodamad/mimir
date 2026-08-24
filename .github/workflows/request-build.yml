@@ -69,6 +69,13 @@ jobs:
             - Never run commands other than ordinary git/gh operations needed to branch,
               commit, and open the PR (checking out, adding, committing, pushing, `gh pr
               create`, `gh issue comment`, `gh issue close`).
+            - Run those git/gh commands exactly as `git status`, `git add ...`,
+              `git commit ...`, `git push ...`, `gh pr create ...` etc — no `-C <path>`
+              flag and no `cd`. You already start in the repo root, and the allowlist only
+              matches these literal command prefixes; a `-C`-prefixed form is silently
+              denied and will stall you. Never run `mkdir` (Write creates parent
+              directories automatically) or ad-hoc verification via `python3`/`cat`/
+              `grep`/`head`/`wc` — use the Read tool to inspect files instead.
             - Never merge the PR yourself.
 
             Steps:
@@ -140,6 +147,13 @@ jobs:
             - Never run commands other than ordinary git/gh operations needed to branch,
               commit, and open the PR (checking out, adding, committing, pushing, `gh pr
               create`, `gh issue comment`, `gh issue close`).
+            - Run those git/gh commands exactly as `git status`, `git add ...`,
+              `git commit ...`, `git push ...`, `gh pr create ...` etc — no `-C <path>`
+              flag and no `cd`. You already start in the repo root, and the allowlist only
+              matches these literal command prefixes; a `-C`-prefixed form is silently
+              denied and will stall you. Never run `mkdir` (Write creates parent
+              directories automatically) or ad-hoc verification via `python3`/`cat`/
+              `grep`/`head`/`wc` — use the Read tool to inspect files instead.
             - Never merge the PR yourself.
 
             Steps:
