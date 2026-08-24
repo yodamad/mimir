@@ -40,6 +40,7 @@ jobs:
           claude_args: |
             --model claude-sonnet-5
             --allowedTools "Read,Edit,Write,Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git checkout:*),Bash(git branch:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue close:*),WebSearch"
+            --disallowedTools "Agent"
           prompt: |
             You are building a PR for issue #${{ github.event.issue.number }} on this repo,
             opened by an anonymous visitor through a public "new entity request" form and
@@ -76,6 +77,12 @@ jobs:
               denied and will stall you. Never run `mkdir` (Write creates parent
               directories automatically) or ad-hoc verification via `python3`/`cat`/
               `grep`/`head`/`wc` — use the Read tool to inspect files instead.
+            - This is a single, non-interactive batch run with no way to resume: there is
+              no notification mechanism to wake you up when a background task finishes, so
+              never spawn a subagent (e.g. mythology-specialist) or otherwise hand off work
+              and wait for it — do all research (WebSearch) and fact-checking yourself,
+              synchronously, in this same turn, then keep going to actually write the
+              files, commit, and open the PR before you stop.
             - Never merge the PR yourself.
 
             Steps:
@@ -114,6 +121,7 @@ jobs:
           claude_args: |
             --model claude-sonnet-5
             --allowedTools "Read,Edit,Write,Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git checkout:*),Bash(git branch:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue close:*),WebSearch"
+            --disallowedTools "Agent"
           prompt: |
             You are building a PR for issue #${{ github.event.issue.number }} on this repo,
             opened by an anonymous visitor through a public "new mythology request" form
@@ -154,6 +162,12 @@ jobs:
               denied and will stall you. Never run `mkdir` (Write creates parent
               directories automatically) or ad-hoc verification via `python3`/`cat`/
               `grep`/`head`/`wc` — use the Read tool to inspect files instead.
+            - This is a single, non-interactive batch run with no way to resume: there is
+              no notification mechanism to wake you up when a background task finishes, so
+              never spawn a subagent (e.g. mythology-specialist) or otherwise hand off work
+              and wait for it — do all research (WebSearch) and fact-checking yourself,
+              synchronously, in this same turn, then keep going to actually write the
+              files, commit, and open the PR before you stop.
             - Never merge the PR yourself.
 
             Steps:
