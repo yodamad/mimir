@@ -32,6 +32,11 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           base_branch: main
+          # TEMP DEBUG: full JSON transcript (all tool calls/results) in the public Action
+          # log, to diagnose why issue #13's build run ended with permission_denials_count:
+          # 4 but no branch/PR/comment. Revert once diagnosed — see action.yml's warning
+          # that this can surface tool output in public logs.
+          show_full_output: true
           claude_args: |
             --model claude-sonnet-5
             --allowedTools "Read,Edit,Write,Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git checkout:*),Bash(git branch:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue close:*),WebSearch"
@@ -94,6 +99,11 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           base_branch: main
+          # TEMP DEBUG: full JSON transcript (all tool calls/results) in the public Action
+          # log, to diagnose why issue #13's build run ended with permission_denials_count:
+          # 4 but no branch/PR/comment. Revert once diagnosed — see action.yml's warning
+          # that this can surface tool output in public logs.
+          show_full_output: true
           claude_args: |
             --model claude-sonnet-5
             --allowedTools "Read,Edit,Write,Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git checkout:*),Bash(git branch:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh pr create:*),Bash(gh pr view:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue close:*),WebSearch"
